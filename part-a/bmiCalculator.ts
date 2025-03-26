@@ -40,13 +40,24 @@ const calculateBmi = (heightCm: number, weightKg: number): string => {
   }
 };
 
-try {
-  const { heightCm, weightKg } = parseBmiArguments(process.argv);
-  console.log(calculateBmi(heightCm, weightKg));
-} catch (error: unknown) {
-  let errorMessage = 'Something bad happened.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
+const main = () => {
+  try {
+    const { heightCm, weightKg } = parseBmiArguments(process.argv);
+    console.log(calculateBmi(heightCm, weightKg));
+  } catch (error: unknown) {
+    let errorMessage = 'Something bad happened.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
+};
+
+if (require.main === module) {
+  main();
 }
+
+export default {
+  parseBmiArguments,
+  calculateBmi
+};
