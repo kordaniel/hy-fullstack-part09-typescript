@@ -1,3 +1,7 @@
+interface ExerciseInputValues {
+  target: number;
+  exercises: number[];
+};
 
 interface Result {
   periodLength: number;
@@ -7,6 +11,21 @@ interface Result {
   ratingDescription: string;
   target: number;
   average: number;
+};
+
+const parseExerciseInputValues = (args: string[]): ExerciseInputValues => {
+  if (args.length < 3) throw new Error('Not enough arguments!');
+
+  const numericArgs = args.slice(2);
+
+  if (numericArgs.some(arg => isNaN(Number(arg)))) {
+    throw new Error('Provided values are not numbers');
+  }
+
+  return {
+    target: Number(numericArgs[0]),
+    exercises: numericArgs.slice(1).map(arg => Number(arg)),
+  };
 };
 
 const calculateExercises = (exercises: number[], target: number): Result => {
@@ -47,7 +66,13 @@ const calculateExercises = (exercises: number[], target: number): Result => {
   };
 };
 
-const exerciseHours: number[] = [3, 0, 2, 4.5, 0, 3, 1];
-const targetHours = 2;
-
-console.log(calculateExercises(exerciseHours, targetHours));
+try {
+  const { target, exercises} = parseExerciseInputValues(process.argv);
+  console.log(calculateExercises(exercises, target));
+} catch (error) {
+  let errorMessage = 'Something bad happened.';
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message;
+  }
+  console.log(errorMessage);
+}
