@@ -66,13 +66,24 @@ const calculateExercises = (exercises: number[], target: number): Result => {
   };
 };
 
-try {
-  const { target, exercises} = parseExerciseInputValues(process.argv);
-  console.log(calculateExercises(exercises, target));
-} catch (error) {
-  let errorMessage = 'Something bad happened.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
+const main = () => {
+  try {
+    const { target, exercises } = parseExerciseInputValues(process.argv);
+    console.log(calculateExercises(exercises, target));
+  } catch (error: unknown) {
+    let errorMessage = 'Something bad happened.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    console.log(errorMessage);
   }
-  console.log(errorMessage);
+};
+
+if (require.main === module) {
+  main();
 }
+
+export default {
+  parseExerciseInputValues,
+  calculateExercises
+};

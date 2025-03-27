@@ -1,8 +1,10 @@
 import express, { Request } from 'express';
 
 import bmiCalculator from './bmiCalculator';
+import exercisesCalculator from './exerciseCalculator';
 
 const app = express();
+app.use(express.json());
 
 interface BmiQueryParams {
   height: string;
@@ -36,6 +38,46 @@ app.get('/bmi', (req: Request<unknown, unknown, unknown, BmiQueryParams>, res) =
     });
   } catch (error: unknown) {
     let errorMessage = 'Malformatted parameters';
+    if (error instanceof Error) {
+      errorMessage += ': ' + error.message;
+    } else {
+      errorMessage += '.';
+    }
+
+    res.status(400).json({
+      error: errorMessage,
+    });
+  }
+});
+
+app.post('/exercises', (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { daily_exercises, target } = req.body;
+  if (!daily_exercises || !target) {
+    res.status(400).json({
+      error: 'parameters missing',
+    });
+    return;
+  } else if (!Array.isArray(daily_exercises)) {
+    res.status(400).json({
+      error: 'malformatted parameters: daily_exercises is not an array',
+    });
+    return;
+  }
+
+  // Ugly hack so that we can use the already implemented parseExerciseInputValues function
+  const exerciseArgs: string[] = [
+    'filler', 'filler',
+    target as string,
+    ...(daily_exercises as string[])
+  ];
+
+  try {
+    const exerciseInputValues = exercisesCalculator.parseExerciseInputValues(exerciseArgs);
+    const result = exercisesCalculator.calculateExercises(exerciseInputValues.exercises, exerciseInputValues.target);
+    res.json(result);
+  } catch (error: unknown) {
+    let errorMessage = 'malformatted parameters';
     if (error instanceof Error) {
       errorMessage += ': ' + error.message;
     } else {
