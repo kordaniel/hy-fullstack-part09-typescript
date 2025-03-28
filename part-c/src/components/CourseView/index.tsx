@@ -2,12 +2,11 @@ import Content from './Content';
 import Header from './Header';
 import Total from './Total';
 
+import { CoursePart } from '../../App';
+
 export interface CourseViewProps {
   courseName: string;
-  courseParts: Array<{
-    name: string;
-    exerciseCount: number;
-  }>;
+  courseParts: CoursePart[];
   totalExercises: number;
 };
 
