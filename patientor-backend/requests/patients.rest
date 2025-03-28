@@ -8,3 +8,7 @@ Content-Type: application/json
   "gender": "male",
   "occupation": "Leet Cop"
 }
+
+###
+
+GET http://localhost:3000/api/patients
