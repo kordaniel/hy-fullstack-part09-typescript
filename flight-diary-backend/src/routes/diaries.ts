@@ -1,13 +1,25 @@
-import express from 'express';
+import express , { Response } from 'express';
 
 import diaryService from '../services/diaryService';
 
-import toNewDiaryEntry from '../utils';
+import toNewDiaryEntry, { isString } from '../utils';
+import { NonSensitiveDiaryEntry, DiaryEntry } from '../types';
 
 const router = express.Router();
 
-router.get('/', (_req, res) => {
-  res.send(diaryService.getNonSensitiveEntries());
+const shouldIncludeComments = (query: { includeComments?: string }): boolean => {
+  const { includeComments } = query;
+  return typeof includeComments !== 'undefined'
+    && isString(includeComments) // probably not needed.. TODO: Study express to be sure
+    && includeComments === 'true';
+};
+
+router.get('/', (req, res: Response<NonSensitiveDiaryEntry[] | DiaryEntry[]>) => {
+  if (shouldIncludeComments(req.query)) {
+    res.send(diaryService.getEntries());
+  } else {
+    res.send(diaryService.getNonSensitiveEntries());
+  }
 });
 
 router.get('/:id', (req, res) => {

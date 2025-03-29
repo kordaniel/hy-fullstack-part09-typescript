@@ -4,6 +4,7 @@
     "outDir": "./build/",
     "module": "commonjs",
     "strict": true,
+    "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
