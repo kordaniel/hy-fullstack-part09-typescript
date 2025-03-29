@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { getAllDiaryEntries } from './services/diaryService';
-import { DiaryEntryTypesUnion } from './types';
+import { DiaryEntry, DiaryEntryTypesUnion, NonSensitiveDiaryEntry } from './types';
 
 import DiaryEntries from './components/DiaryEntries';
 import ErrorRenderer from './components/ErrorRenderer';
 import Selector from './components/DiaryEntries/Selector';
+import AddNewDiaryEntry from './components/DiaryEntries/AddNewDiaryEntry';
 
 
 const App = () => {
@@ -29,6 +30,20 @@ const App = () => {
       });
   }, [includeComments]);
 
+  const addNewDiaryEntry = (newDiaryEntry: DiaryEntry) => {
+    //console.log('adding new diary to list!:', newDiaryEntry);
+    if (includeComments) {
+      setDiaryEntries(diaryEntries.concat(newDiaryEntry));
+    } else {
+      const nonSensitivDiaryEntry: NonSensitiveDiaryEntry = {
+        id: newDiaryEntry.id,
+        date: newDiaryEntry.date,
+        weather: newDiaryEntry.weather,
+        visibility: newDiaryEntry.visibility
+      };
+      setDiaryEntries(diaryEntries.concat(nonSensitivDiaryEntry));
+    }
+  };
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeComments(e.target.checked);
   };
@@ -41,6 +56,7 @@ const App = () => {
         handleCheckboxChange={handleCheckboxChange}
       />
       <ErrorRenderer errorMsg={error} />
+      <AddNewDiaryEntry addNewDiaryEntryCb={addNewDiaryEntry} />
       <DiaryEntries diaryEntries={diaryEntries} />
     </div>
   );
