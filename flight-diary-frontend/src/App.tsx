@@ -31,7 +31,6 @@ const App = () => {
   }, [includeComments]);
 
   const addNewDiaryEntry = (newDiaryEntry: DiaryEntry) => {
-    //console.log('adding new diary to list!:', newDiaryEntry);
     if (includeComments) {
       setDiaryEntries(diaryEntries.concat(newDiaryEntry));
     } else {
@@ -44,6 +43,7 @@ const App = () => {
       setDiaryEntries(diaryEntries.concat(nonSensitivDiaryEntry));
     }
   };
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeComments(e.target.checked);
   };

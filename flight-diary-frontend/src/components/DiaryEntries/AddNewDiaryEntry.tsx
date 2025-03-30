@@ -1,34 +1,50 @@
 import React, { useState } from 'react';
+import { isAxiosError } from 'axios';
 
 import { createNewDiaryEntry } from '../../services/diaryService';
 import { DiaryEntry, NewDiaryEntry, Visibility, Weather } from '../../types';
+import { isDefinedNonEmptyString } from '../../utils';
+
+import ErrorRenderer from '../ErrorRenderer';
 
 interface AddNewDiaryEntryProps {
   addNewDiaryEntryCb: (newDiaryEntry: DiaryEntry) => void;
 };
 
 const AddNewDiaryEntry = ({ addNewDiaryEntryCb }: AddNewDiaryEntryProps) => {
-  // Ex. 9.18 (You may skip all validations)
-  const [newDiaryEntry, setNewDiaryEntry] = useState<NewDiaryEntry>({
-      date: '',
-      weather: '' as Weather,
-      visibility: '' as Visibility,
-      comment: '',
-  });
+  // Ex. 9.18 & 9.19 (You may skip all clientside validations)
+  const initialDiaryEntry: NewDiaryEntry = {
+    date: '',
+    weather: '' as Weather,
+    visibility: '' as Visibility,
+    comment: '',
+  };
+  const [error, setError] = useState<string>('');
+  const [newDiaryEntry, setNewDiaryEntry] = useState<NewDiaryEntry>(initialDiaryEntry);
 
   const handleSubmitNewDiaryEntry = (e: React.SyntheticEvent) => {
     e.preventDefault();
     createNewDiaryEntry(newDiaryEntry)
       .then(createdDiaryEntry => {
-        //console.log('handleSubmit, response:', createdDiaryEntry);
         addNewDiaryEntryCb(createdDiaryEntry);
+        setError('');
+        setNewDiaryEntry(initialDiaryEntry);
       })
       .catch((error: unknown) => {
-        let errorMsg = 'Error creating DE';
-        if (error instanceof Error) {
-          errorMsg += `: ${error.message}`;
+        const errorMsg = 'Something went wrong. Error: ';
+        if (isAxiosError(error)) {
+          if (isDefinedNonEmptyString(error.response?.data)) {
+            setError(error.response.data); // validation failure, all status 4xx?
+          } else if (isDefinedNonEmptyString(error.response?.statusText)) {
+            setError(`${errorMsg}${error.response.statusText}`); // no response from server, all status 5xx?
+          } else {
+            setError(`${errorMsg}${error.message}`);
+          }
+        } else if (error instanceof Error) {
+          setError(`${errorMsg}${error.message}`);
+        } else {
+          console.error(errorMsg);
         }
-        console.error(errorMsg);
       });
   };
 
@@ -60,6 +76,7 @@ const AddNewDiaryEntry = ({ addNewDiaryEntryCb }: AddNewDiaryEntryProps) => {
   return (
     <div style={{ border: "solid", padding: "0.25em" }}>
       <h2>Add new entry</h2>
+      <ErrorRenderer errorMsg={error} />
       <form onSubmit={handleSubmitNewDiaryEntry}>
         <table>
           <tbody>

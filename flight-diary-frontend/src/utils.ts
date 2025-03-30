@@ -14,6 +14,10 @@ const isString = (text: unknown): text is string => {
   return typeof text === 'string' || text instanceof String;
 };
 
+export const isDefinedNonEmptyString = (param: unknown): param is string => {
+  return typeof param !== 'undefined' && isString(param) && param.length > 0;
+};
+
 const isDate = (date: string): boolean => {
   return Boolean(Date.parse(date));
 };

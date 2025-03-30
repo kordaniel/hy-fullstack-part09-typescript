@@ -5,7 +5,7 @@ interface DiaryEntriesProps {
 };
 
 const Entry = ({ entry }: { entry: DiaryEntryTypesUnion }) => {
-  const hasComment = 'comment' in entry;
+  const hasComment = 'comment' in entry && entry.comment;
   return (
     <span>
       <h3>{entry.date}</h3>
