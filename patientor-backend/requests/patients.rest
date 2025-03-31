@@ -12,3 +12,15 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3000/api/patients
+
+### GET Dana Scully
+
+GET http://localhost:3000/api/patients/d2773822-f723-11e9-8f0b-362b9e155667
+
+### GET Hans Gruber
+
+GET http://localhost:3000/api/patients/d27736ec-f723-11e9-8f0b-362b9e155667
+
+### GET Invalid id
+
+GET http://localhost:3000/api/patients/invalid-id-11e9-8f0b-362b9e155667d2773822-f723-11e9-8f0b-362b9e155667
