@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { toNewDiaryTypesEntryTypesUnion } from '../utils';
-import { DiaryEntry, DiaryEntryTypesUnion, NewDiaryEntry } from '../types';
+import { DiaryEntry, DiaryEntryTypesUnion, NewDiaryEntryFormData } from '../types';
 
 const baseUrl = 'api/diaries';
 
@@ -29,7 +29,7 @@ export const getAllDiaryEntries = (includeComments: boolean) => {
     });
 };
 
-export const createNewDiaryEntry = (object: NewDiaryEntry) => {
+export const createNewDiaryEntry = (object: NewDiaryEntryFormData) => {
   return axios
     .post<DiaryEntry>(baseUrl, object)
     .then(res => res.data);

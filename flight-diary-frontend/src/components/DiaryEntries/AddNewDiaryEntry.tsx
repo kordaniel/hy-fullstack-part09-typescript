@@ -1,33 +1,87 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { isAxiosError } from 'axios';
 
+import RadioSelection from './RadioSelection';
+
 import { createNewDiaryEntry } from '../../services/diaryService';
-import { DiaryEntry, NewDiaryEntry, Visibility, Weather } from '../../types';
-import { isDefinedNonEmptyString } from '../../utils';
+import { DiaryEntry, HTMLTagStylesObject, NewDiaryEntryFormData, Visibility, Weather } from '../../types';
+import { isDefinedNonEmptyString, isVisibility, isWeather } from '../../utils';
 
 import ErrorRenderer from '../ErrorRenderer';
+
+const styles: HTMLTagStylesObject = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    border: 'solid',
+    padding: '0.25em',
+  },
+  formContainer: {
+    width: 'fit-content',
+  },
+  formGroup: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+};
+
+const initialDiaryEntry: NewDiaryEntryFormData = {
+  date: new Date().toJSON().slice(0, 10),
+  weather: '',
+  visibility: '',
+  comment: '',
+};
 
 interface AddNewDiaryEntryProps {
   addNewDiaryEntryCb: (newDiaryEntry: DiaryEntry) => void;
 };
 
 const AddNewDiaryEntry = ({ addNewDiaryEntryCb }: AddNewDiaryEntryProps) => {
-  // Ex. 9.18 & 9.19 (You may skip all clientside validations)
-  const initialDiaryEntry: NewDiaryEntry = {
-    date: '',
-    weather: '' as Weather,
-    visibility: '' as Visibility,
-    comment: '',
-  };
   const [error, setError] = useState<string>('');
-  const [newDiaryEntry, setNewDiaryEntry] = useState<NewDiaryEntry>(initialDiaryEntry);
+  const [newDiaryEntry, setNewDiaryEntry] = useState<NewDiaryEntryFormData>(initialDiaryEntry);
+
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const visibilityOptions: string[] = Object.values(Visibility).map(v => v.toString());
+  const weatherOptions: string[] = Object.values(Weather).map(w => w.toString());
+
+  const clearForm = () => {
+    if (formRef.current) {
+      formRef.current.reset();
+    }
+  };
+
+  const validateForm = (): string[] => {
+    return Object.entries(newDiaryEntry)
+      .filter((([field, ]) => field !== 'comment')) // comment can be empty
+      .reduce((acc: string[], [field, value]) => {
+        if (!value) {
+          acc.push(`${field} is required`);
+        }
+        return acc;
+      }, []);
+  };
 
   const handleSubmitNewDiaryEntry = (e: React.SyntheticEvent) => {
     e.preventDefault();
+    const errors: string[] = validateForm();
+    if (errors.length > 0) {
+      setError(`Please fill in all required fields: ${errors.join(' | ')}`);
+      return;
+    }
+
+    if (error) {
+      setError('');
+    }
+
     createNewDiaryEntry(newDiaryEntry)
       .then(createdDiaryEntry => {
         addNewDiaryEntryCb(createdDiaryEntry);
         setError('');
+        clearForm();
         setNewDiaryEntry(initialDiaryEntry);
       })
       .catch((error: unknown) => {
@@ -48,25 +102,34 @@ const AddNewDiaryEntry = ({ addNewDiaryEntryCb }: AddNewDiaryEntryProps) => {
       });
   };
 
-  const handleInputDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateWeather = (weather: string) => {
+    if (!isWeather(weather)) {
+      return;
+    }
+    setNewDiaryEntry({
+      ...newDiaryEntry,
+      weather
+    });
+  };
+
+  const updateVisibility = (visibility: string) => {
+    if (!isVisibility(visibility)) {
+      return;
+    }
+    setNewDiaryEntry({
+      ...newDiaryEntry,
+      visibility
+    });
+  };
+
+  const updateDate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewDiaryEntry({
       ...newDiaryEntry,
       date: e.target.value,
     });
   };
-  const handleInputVisibility = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewDiaryEntry({
-      ...newDiaryEntry,
-      visibility: e.target.value as Visibility,
-    });
-  };
-  const handleInputWeather = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewDiaryEntry({
-      ...newDiaryEntry,
-      weather: e.target.value as Weather,
-    });
-  };
-  const handleInputComment = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const updateComment = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewDiaryEntry({
       ...newDiaryEntry,
       comment: e.target.value,
@@ -74,34 +137,40 @@ const AddNewDiaryEntry = ({ addNewDiaryEntryCb }: AddNewDiaryEntryProps) => {
   };
 
   return (
-    <div style={{ border: "solid", padding: "0.25em" }}>
+    <div style={styles.container}>
       <h2>Add new entry</h2>
       <ErrorRenderer errorMsg={error} />
-      <form onSubmit={handleSubmitNewDiaryEntry}>
-        <table>
-          <tbody>
-            <tr>
-              <td>date:</td>
-              <td><input value={newDiaryEntry.date} onChange={handleInputDate} type="text" /></td>
-            </tr>
-            <tr>
-              <td>visibility:</td>
-              <td><input value={newDiaryEntry.visibility} onChange={handleInputVisibility} type="text" /></td>
-            </tr>
-            <tr>
-              <td>weather:</td>
-              <td><input value={newDiaryEntry.weather} onChange={handleInputWeather} type="text" /></td>
-            </tr>
-            <tr>
-              <td>comments:</td>
-              <td><input value={newDiaryEntry.comment} onChange={handleInputComment} type="text" /></td>
-            </tr>
-            <tr>
-              <td style={{ textAlign: 'right' }} colSpan={2}><button type="submit">Add</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </form>
+      <div style={styles.formContainer}>
+        <form ref={formRef} onSubmit={handleSubmitNewDiaryEntry}>
+          <div style={styles.formGroup}>
+            <fieldset>
+              <legend>Visibility:</legend>
+              <RadioSelection label="visibility" options={visibilityOptions} handleChange={updateVisibility} />
+            </fieldset>
+            <fieldset>
+              <legend>Weather:</legend>
+              <RadioSelection label="weather" options={weatherOptions} handleChange={updateWeather} />
+            </fieldset>
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="date">Date:</label>
+            <input
+              type="date"
+              id="date"
+              max={new Date().toJSON().slice(0,10)}
+              value={newDiaryEntry.date}
+              onChange={updateDate}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label htmlFor="comment">Comment:</label>
+            <input type="text" id="comment" value={newDiaryEntry.comment} onChange={updateComment} />
+          </div>
+          <div style={styles.buttonContainer}>
+            <button type="submit">Add</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

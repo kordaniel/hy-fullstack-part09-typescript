@@ -26,3 +26,13 @@ export type NewDiaryEntry = Omit<DiaryEntry, 'id'>;
 export type NonSensitiveDiaryEntry = Omit<DiaryEntry, 'comment'>;
 
 export type DiaryEntryTypesUnion = DiaryEntry | NonSensitiveDiaryEntry;
+
+type ConvertInterfaceEnumsToString<T> = {
+  [K in keyof T]: T[K] extends string | number ? string : T[K];
+};
+
+export type NewDiaryEntryFormData = ConvertInterfaceEnumsToString<NewDiaryEntry>;
+
+export type HTMLTagStylesObject = {
+  [key: string]: React.CSSProperties;
+};
