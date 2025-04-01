@@ -9,6 +9,85 @@ Content-Type: application/json
   "occupation": "Leet Cop"
 }
 
+### POST new entry Hans Gruber
+
+POST http://localhost:3000/api/patients/d27736ec-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "description": "Mr. Gruber is losing it",
+  "date": "2023-06-01",
+  "specialist": "PhD HY",
+  "diagnosisCodes": ["L00se"],
+  "type": "Hospital",
+  "discharge": {
+    "date": "2023-09-01",
+    "criteria": "A long time, that's all"
+  }
+}
+
+### POST new entry Matti Luukkainen
+
+POST http://localhost:3000/api/patients/d2773c6e-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "description": "Creating too good courses for lost students",
+  "date": "2025-01-01",
+  "specialist": "YTHS",
+  "diagnosisCodes": ["W1.N"],
+  "type": "OccupationalHealthcare",
+  "employerName": "Kumpu",
+  "sickLeave": {
+    "startDate": "2025-01-01",
+    "endDate": "2025-01-02"
+  }
+}
+
+### POST new entry Dana Scully
+
+POST http://localhost:3000/api/patients/d2773822-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "description": "Scully claims no UFO's exist",
+  "date": "1999-02-28",
+  "specialist": "MD Fox",
+  "diagnosisCodes": ["Z74.3", "SAD.1"],
+  "type": "HealthCheck",
+  "healthCheckRating": 3
+}
+
+### POST new entry Hans Gruber INVALID args
+
+POST http://localhost:3000/api/patients/d27736ec-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "date": 213142414,
+  "specialist": null,
+  "diagnosisCodes": "L00se",
+  "type": "Hospital",
+  "discharge": {
+    //"date": "2023-09-01",
+    "criteria": "A long time, that's all"
+  }
+}
+
+### POST new entry Invalid ID
+
+POST http://localhost:3000/api/patients/not321-f723-11e9-8f0b-362b9e155667/entries
+Content-Type: application/json
+
+{
+  "description": "Scully claims no UFO's exist",
+  "date": "1999-02-28",
+  "specialist": "MD Fox",
+  "diagnosisCodes": ["Z74.3", "SAD.1"],
+  "type": "HealthCheck",
+  "healthCheckRating": 3
+}
+
 ###
 
 GET http://localhost:3000/api/patients

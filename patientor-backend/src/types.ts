@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 import { newPatientSchema } from './utils/zodSchemas';
 
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
+
+
 export type Diagnosis = {
   code: string;
   name: string;
@@ -68,3 +71,5 @@ export type Patient = {
 
 export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;
 export type NewPatient = z.infer<typeof newPatientSchema>;
+
+export type NewEntry = UnionOmit<Entry, 'id'>;

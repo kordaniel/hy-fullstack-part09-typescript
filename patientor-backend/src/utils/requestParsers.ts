@@ -1,6 +1,15 @@
 import { NextFunction, Response, Request } from 'express';
 
-import { newPatientSchema } from './zodSchemas';
+import { newEntrySchema, newPatientSchema } from './zodSchemas';
+
+const newEntryParser = (req: Request, _res: Response, next: NextFunction) => {
+  try {
+    newEntrySchema.parse(req.body);
+    next();
+  } catch (error: unknown) {
+    next(error);
+  }
+};
 
 const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -12,5 +21,6 @@ const newPatientParser = (req: Request, _res: Response, next: NextFunction) => {
 };
 
 export default {
+  newEntryParser,
   newPatientParser,
 };

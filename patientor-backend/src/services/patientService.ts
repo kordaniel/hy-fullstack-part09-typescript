@@ -1,10 +1,10 @@
-import { v1 as uuid } from 'uuid';
 import patients from '../../data/patients';
 
-import { Patient, NonSensitivePatient, NewPatient } from '../types';
+import { Patient, NonSensitivePatient, NewPatient, NewEntry, Entry } from '../types';
+import { toNewEntry, toNewPatient } from '../utils/parsersTypeGuards';
 
 const addPatient = (patient: NewPatient): Patient => {
-  const newPatient: Patient = { id: uuid(), entries: [], ...patient };
+  const newPatient = toNewPatient(patient);
   patients.push(newPatient);
   return newPatient;
 };
@@ -23,9 +23,21 @@ const getPatientById = (id: string): Patient | undefined => {
   return patients.find(p => p.id === id);
 };
 
+const addEntry = (patientId: string, entry: NewEntry): Entry | undefined => {
+  const patient = getPatientById(patientId);
+  if (patient) {
+    const newEntry = toNewEntry(entry);
+    patient.entries.push(toNewEntry(newEntry));
+    return newEntry;
+  }
+
+  return undefined;
+};
+
 export default {
   addPatient,
   getPatients,
   getPatientById,
   getNonSensitivePatients,
+  addEntry,
 };
